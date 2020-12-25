@@ -4,17 +4,17 @@ defmodule Rover.Server do
   @doc """
   Starts a Rover Server, locally registered as module name.
   ## Examples
-      Rover.Server.start_link()
+      Rover.Server.start_link(nil)
       {:ok, _pid}
   """
-  def start_link() do
+  def start_link(_) do
     GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
 
   @doc """
   Moves the rover in the provided direction for provided steps.
   ## Examples
-      iex> Rover.Server.start_link()
+      iex> Rover.Server.start_link(nil)
       ...> Rover.Server.move("L",0)
       ...> Rover.Server.move("R",1)
       %Rover{direction: "N", x: 0, y: 1}
@@ -26,7 +26,7 @@ defmodule Rover.Server do
   @doc """
   Gets the current state(direction and location) of the Rover.
   ## Examples
-      iex> Rover.Server.start_link()
+      iex> Rover.Server.start_link(nil)
       ...> Rover.Server.get_current_state()
       %Rover{direction: "N", x: 0, y: 0}
   """
@@ -48,5 +48,9 @@ defmodule Rover.Server do
   def handle_call({:move, direction, steps}, _, rover) do
     rover = Rover.move(rover, direction, steps)
     {:reply, rover, rover}
+  end
+
+  def child_spec(_) do
+    %{id: __MODULE__, start: {__MODULE__, :start_link, [nil]}}
   end
 end
