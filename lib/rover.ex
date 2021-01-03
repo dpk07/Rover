@@ -22,8 +22,9 @@ defmodule Rover do
       %Rover{direction: "N", x: 0, y: 0}
 
   """
-  def init() do
-    %Rover{}
+  def init(opts \\ %Rover{}) do
+    rover = %Rover{}
+    Map.merge(rover, opts)
   end
 
   @doc """
