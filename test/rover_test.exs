@@ -71,4 +71,14 @@ defmodule RoverTest do
     assert rover.x == -100
     assert rover.y == 269
   end
+
+  test "Moving a rover in an invalid direction." do
+    rover = Rover.init() |> Rover.move("Z", 10)
+    assert {:error, :invalid_input, :direction} = rover
+  end
+
+  test "Moving a rover by invalid number of steps." do
+    rover = Rover.init() |> Rover.move(@left, -10)
+    assert {:error, :invalid_input, :steps} = rover
+  end
 end

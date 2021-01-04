@@ -35,7 +35,19 @@ defmodule Rover do
 
   """
   def move(rover, direction, steps) do
-    do_move(rover, direction, steps)
+    cond do
+      !are_steps_valid(steps) -> {:error, :invalid_input, :steps}
+      !is_direction_valid(direction) -> {:error, :invalid_input, :direction}
+      true -> do_move(rover, direction, steps)
+    end
+  end
+
+  defp are_steps_valid(steps) do
+    steps >= 0
+  end
+
+  defp is_direction_valid(direction) do
+    direction == @left || direction == @right
   end
 
   defp do_move(rover = %Rover{direction: @west, x: x, y: y}, @left, steps) do
