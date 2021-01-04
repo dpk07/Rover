@@ -14,10 +14,10 @@ defmodule Rover.Server do
   @doc """
   Moves the rover in the provided direction for provided steps.
   ## Examples
-      iex> Rover.Server.start_link(nil)
-      ...> Rover.Server.move("L",0)
-      ...> Rover.Server.move("R",1)
-      %Rover{direction: "N", x: 0, y: 1}
+       Rover.Server.start_link(nil)
+       Rover.Server.move("L",0)
+       Rover.Server.move("R",1)
+      {:ok, %Rover{direction: "N", x: 0, y: 1}}
   """
   def move(direction, steps) do
     GenServer.call(__MODULE__, {:move, direction, steps})
@@ -26,8 +26,8 @@ defmodule Rover.Server do
   @doc """
   Gets the current state(direction and location) of the Rover.
   ## Examples
-      iex> Rover.Server.start_link(nil)
-      ...> Rover.Server.get_current_state()
+       Rover.Server.start_link(nil)
+       Rover.Server.get_current_state()
       %Rover{direction: "N", x: 0, y: 0}
   """
   def get_current_state() do
@@ -46,8 +46,15 @@ defmodule Rover.Server do
 
   @impl true
   def handle_call({:move, direction, steps}, _, rover) do
-    rover = Rover.move(rover, direction, steps)
-    {:reply, rover, rover}
+    move_response = Rover.move(rover, direction, steps)
+
+    case move_response do
+      {:error, _,_} ->
+        {:reply, move_response, rover}
+
+      _ ->
+        {:reply, {:ok, move_response}, move_response}
+    end
   end
 
   def child_spec(_) do
