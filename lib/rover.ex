@@ -9,7 +9,7 @@ defmodule Rover do
   @south "S"
   @left "L"
   @right "R"
-  @valid_directions [@left,@right]
+  @valid_directions [@left, @right]
   defstruct direction: @north, x: 0, y: 0
 
   @doc """
@@ -30,15 +30,14 @@ defmodule Rover do
   @doc """
   Moves the rover in the provided direction for provided steps.
   ## Examples
-      iex> Rover.init() |> Rover.move("L",0) |> Rover.move("R",1)
-      %Rover{direction: "N", x: 0, y: 1}
+      iex> Rover.init(%Rover{direction: "W"}) |> Rover.move("R",1)
+      {:ok, %Rover{direction: "N", x: 0, y: 1}}
 
   """
   def move(rover, direction, steps) do
     with :ok <- validate_steps(steps),
-    :ok <- validate_direction(direction)
-    do
-      do_move(rover, direction, steps)
+         :ok <- validate_direction(direction) do
+      {:ok, do_move(rover, direction, steps)}
     else
       err -> err
     end
@@ -57,7 +56,7 @@ defmodule Rover do
   end
 
   defp validate_direction(direction) do
-    if(Enum.any?(@valid_directions,fn x -> direction == x end)) do
+    if(Enum.any?(@valid_directions, fn x -> direction == x end)) do
       :ok
     else
       invalid_input_error(:direction)
