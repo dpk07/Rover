@@ -9,7 +9,7 @@ defmodule Rover do
   @south "S"
   @left "L"
   @right "R"
-
+  @valid_directions [@left,@right]
   defstruct direction: @north, x: 0, y: 0
 
   @doc """
@@ -35,19 +35,33 @@ defmodule Rover do
 
   """
   def move(rover, direction, steps) do
-    cond do
-      !are_steps_valid(steps) -> {:error, :invalid_input, :steps}
-      !is_direction_valid(direction) -> {:error, :invalid_input, :direction}
-      true -> do_move(rover, direction, steps)
+    with :ok <- validate_steps(steps),
+    :ok <- validate_direction(direction)
+    do
+      do_move(rover, direction, steps)
+    else
+      err -> err
     end
   end
 
-  defp are_steps_valid(steps) do
-    steps >= 0
+  defp invalid_input_error(attribute) do
+    {:error, :invalid_input, attribute}
   end
 
-  defp is_direction_valid(direction) do
-    direction == @left || direction == @right
+  defp validate_steps(steps) do
+    if(steps >= 0) do
+      :ok
+    else
+      invalid_input_error(:steps)
+    end
+  end
+
+  defp validate_direction(direction) do
+    if(Enum.any?(@valid_directions,fn x -> direction == x end)) do
+      :ok
+    else
+      invalid_input_error(:direction)
+    end
   end
 
   defp do_move(rover = %Rover{direction: @west, x: x, y: y}, @left, steps) do
