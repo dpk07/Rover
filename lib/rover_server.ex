@@ -65,16 +65,10 @@ defmodule Rover.Server do
   end
 
   defp validate_rover_position(%Rover{x: x, y: y, direction: _} = rover, grid) do
-    case grid do
-      %Grid{x: nil, y: nil} ->
-        {:ok, rover}
-
-      %Grid{x: grid_x, y: grid_y} ->
-        if(x < 0 || y < 0 || x >= grid_x || y >= grid_y) do
-          {:error, :invalid_operation, :rover_position_out_of_bounds}
-        else
-          {:ok, rover}
-        end
+    unless Grid.is_position_inside_bounds?(grid, x, y) do
+      {:error, :invalid_operation, :rover_position_out_of_bounds}
+    else
+      {:ok, rover}
     end
   end
 

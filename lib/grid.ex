@@ -29,4 +29,16 @@ defmodule Grid do
   def init() do
     %Grid{}
   end
+
+  def is_position_inside_bounds?(%Grid{x: grid_x, y: grid_y}, x, y) do
+    if(is_grid_unbounded(grid_x, grid_y)) do
+      true
+    else
+      x >= 0 && y >= 0 && x < grid_x && y < grid_y
+    end
+  end
+
+  defp is_grid_unbounded(grid_x, grid_y) do
+    grid_x == nil && grid_y == nil
+  end
 end
