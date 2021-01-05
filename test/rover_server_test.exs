@@ -33,10 +33,13 @@ defmodule Rover.Server.Test do
     assert rover.y == 15
   end
 
-  test "Returns an error if a rover is moved with invalid arguments and doesn't corrupt the state." do
-    rover = Rover.Server.get_current_state()
+  test "Returns an error if a rover is moved with invalid arguments." do
     response = Rover.Server.move("Z",-2)
     assert {:error, :invalid_input, _} = response
+  end
+  test "State is not disturbed if invalid arguments are used to move the rover." do
+    rover = Rover.Server.get_current_state()
+    Rover.Server.move("W",-22)
     new_rover = Rover.Server.get_current_state()
 
     assert rover.direction == new_rover.direction
