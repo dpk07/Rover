@@ -94,8 +94,8 @@ defmodule RoverTest do
 
   test "Moving a rover outside the grid returns error.", %{grid: grid} do
     error = Rover.init(%Rover{direction: @west, x: 100, y: 247}) |> Rover.move(@right, 1000, grid)
-    assert {:error, :invalid_operation, :rover_position_out_of_bounds} = error
+    assert {:error, :invalid_operation, :position_out_of_bounds} = error
     error = Rover.init(%Rover{direction: @north, x: 0, y: 0}) |> Rover.move(@left, 1, grid)
-    assert {:error, :invalid_operation, :rover_position_out_of_bounds} = error
+    assert {:error, :invalid_operation, :position_out_of_bounds} = error
   end
 end

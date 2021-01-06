@@ -66,7 +66,7 @@ defmodule Rover.Server.Test do
 
     test "Trying to move a rover out of bounds is unsuccessfull." do
       move_response = Rover.Server.move(@left, 10)
-      assert move_response == {:error, :invalid_operation, :rover_position_out_of_bounds}
+      assert move_response == {:error, :invalid_operation, :position_out_of_bounds}
     end
 
     test "Trying to move a rover out of bounds does not corrupt state." do

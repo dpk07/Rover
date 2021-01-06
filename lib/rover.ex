@@ -22,9 +22,11 @@ defmodule Rover do
       %Rover{direction: "N", x: 0, y: 0}
 
   """
-  def init(opts \\ %Rover{}) do
-    rover = %Rover{}
-    Map.merge(rover, opts)
+  def init(opts \\ %{}) do
+    direction = Map.get(opts, :direction, @north)
+    x = Map.get(opts, :x, 0)
+    y = Map.get(opts, :y, 0)
+    %Rover{direction: direction, x: x, y: y}
   end
 
   @doc """
@@ -38,75 +40,40 @@ defmodule Rover do
     with :ok <- validate_steps(steps),
          :ok <- validate_direction(direction),
          {new_direction, new_x, new_y} <- get_next_position(rover, direction, steps),
-         :ok <-
-           validate_next_position(grid, new_x, new_y) do
+         :ok <- validate_next_position(grid, new_x, new_y) do
       {:ok, do_move(rover, new_direction, new_x, new_y)}
     else
       err -> err
     end
   end
 
-  defp validate_steps(steps) do
-    if(steps >= 0) do
-      :ok
-    else
-      invalid_input_error(:steps)
-    end
-  end
+  defp validate_steps(steps) when steps >= 0, do: :ok
 
-  defp validate_direction(direction) do
-    if(Enum.any?(@valid_directions, fn x -> direction == x end)) do
-      :ok
-    else
-      invalid_input_error(:direction)
-    end
-  end
+  defp validate_steps(_steps), do: invalid_input_error(:steps)
 
-  defp validate_next_position(grid, new_x, new_y) do
-    if(Grid.is_position_inside_bounds?(grid, new_x, new_y)) do
-      :ok
-    else
-      {:error, :invalid_operation, :rover_position_out_of_bounds}
-    end
-  end
+  defp validate_direction(direction) when direction in @valid_directions, do: :ok
 
-  defp get_next_position(%Rover{direction: @west, x: x, y: y}, @left, steps) do
-    {@south, x, y - steps}
-  end
+  defp validate_direction(_direction), do: invalid_input_error(:direction)
 
-  defp get_next_position(%Rover{direction: @east, x: x, y: y}, @left, steps) do
-    {@north, x, y + steps}
-  end
+  defdelegate validate_next_position(grid, new_x, new_y), to: Grid, as: :validate_position_on_grid
 
-  defp get_next_position(%Rover{direction: @north, x: x, y: y}, @left, steps) do
-    {@west, x - steps, y}
-  end
+  defp get_next_position(%Rover{direction: @west, x: x, y: y}, @left, steps), do: {@south, x, y - steps}
 
-  defp get_next_position(%Rover{direction: @south, x: x, y: y}, @left, steps) do
-    {@east, x + steps, y}
-  end
+  defp get_next_position(%Rover{direction: @east, x: x, y: y}, @left, steps), do: {@north, x, y + steps}
 
-  defp get_next_position(%Rover{direction: @west, x: x, y: y}, @right, steps) do
-    {@north, x, y + steps}
-  end
+  defp get_next_position(%Rover{direction: @north, x: x, y: y}, @left, steps), do: {@west, x - steps, y}
 
-  defp get_next_position(%Rover{direction: @east, x: x, y: y}, @right, steps) do
-    {@south, x, y - steps}
-  end
+  defp get_next_position(%Rover{direction: @south, x: x, y: y}, @left, steps), do: {@east, x + steps, y}
 
-  defp get_next_position(%Rover{direction: @north, x: x, y: y}, @right, steps) do
-    {@east, x + steps, y}
-  end
+  defp get_next_position(%Rover{direction: @west, x: x, y: y}, @right, steps), do: {@north, x, y + steps}
 
-  defp get_next_position(%Rover{direction: @south, x: x, y: y}, @right, steps) do
-    {@west, x - steps, y}
-  end
+  defp get_next_position(%Rover{direction: @east, x: x, y: y}, @right, steps), do: {@south, x, y - steps}
 
-  defp do_move(rover, direction, x, y) do
-    %Rover{rover | direction: direction, x: x, y: y}
-  end
+  defp get_next_position(%Rover{direction: @north, x: x, y: y}, @right, steps), do: {@east, x + steps, y}
 
-  defp invalid_input_error(attribute) do
-    {:error, :invalid_input, attribute}
-  end
+  defp get_next_position(%Rover{direction: @south, x: x, y: y}, @right, steps), do: {@west, x - steps, y}
+
+  defp do_move(rover, direction, x, y), do: %Rover{rover | direction: direction, x: x, y: y}
+
+  defp invalid_input_error(attribute), do: {:error, :invalid_input, attribute}
 end

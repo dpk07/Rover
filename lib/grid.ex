@@ -13,9 +13,7 @@ defmodule Grid do
       %Grid{x: 1, y: 2}
 
   """
-  def init(x, y) do
-    %Grid{x: x, y: y}
-  end
+  def init(x, y), do: %Grid{x: x, y: y}
 
   @doc """
   Initializes a Grid with no bounds.
@@ -26,19 +24,17 @@ defmodule Grid do
       %Grid{x: nil, y: nil}
 
   """
-  def init() do
-    %Grid{}
-  end
+  def init(), do: %Grid{}
 
-  def is_position_inside_bounds?(grid, x, y) do
-    if(is_grid_unbounded?(grid)) do
-      true
-    else
-      x >= 0 && y >= 0 && x < grid.x && y < grid.y
+  def validate_position_on_grid(grid, x, y) do
+    cond do
+      grid_unbounded?(grid) -> :ok
+      position_inside_grid_boundary?(grid, x, y) -> :ok
+      true -> {:error, :invalid_operation, :position_out_of_bounds}
     end
   end
 
-  defp is_grid_unbounded?(grid) do
-    grid.x == nil && grid.y == nil
-  end
+  defp position_inside_grid_boundary?(grid, x, y), do: x >= 0 && y >= 0 && x < grid.x && y < grid.y
+
+  defp grid_unbounded?(grid), do: grid.x == nil && grid.y == nil
 end

@@ -1,4 +1,7 @@
 defmodule Rover.Server do
+  @moduledoc """
+  Server to store state of rover and grid.
+  """
   use GenServer
 
   @doc """
@@ -19,9 +22,7 @@ defmodule Rover.Server do
        Rover.Server.move("R",1)
       {:ok, %Rover{direction: "N", x: 0, y: 1}}
   """
-  def move(direction, steps) do
-    GenServer.call(__MODULE__, {:move, direction, steps})
-  end
+  def move(direction, steps), do: GenServer.call(__MODULE__, {:move, direction, steps})
 
   @doc """
   Gets the current state(direction and location) of the Rover.
@@ -30,37 +31,25 @@ defmodule Rover.Server do
        Rover.Server.get_current_state()
       %Rover{direction: "N", x: 0, y: 0}
   """
-  def get_current_state() do
-    GenServer.call(__MODULE__, {:get})
-  end
+  def get_current_state(), do: GenServer.call(__MODULE__, {:get})
 
   @impl true
-  def init(arg) do
-    case arg do
-      {x, y} when x > 0 and y > 0 -> {:ok, {Rover.init(), Grid.init(x, y)}}
-      _ -> {:stop, "Invalid arguments, grid bounds should be greater than zero."}
-    end
-  end
+  def init({x, y}) when x > 0 and y > 0, do: {:ok, {Rover.init(), Grid.init(x, y)}}
+
+  def init(_), do: {:stop, "Invalid arguments, grid bounds should be greater than zero."}
 
   @impl true
-  def handle_call({:get}, _, {rover, grid}) do
-    {:reply, rover, {rover, grid}}
-  end
+  def handle_call({:get}, _, {rover, grid}), do: {:reply, rover, {rover, grid}}
 
   @impl true
   def handle_call({:move, direction, steps}, _, {rover, grid}) do
     move_response = Rover.move(rover, direction, steps, grid)
 
     case move_response do
-      {:error, _, _} = error ->
-        {:reply, error, {rover, grid}}
-
-      {:ok, new_rover} ->
-        {:reply, {:ok, new_rover}, {new_rover, grid}}
+      {:error, _, _} = error -> {:reply, error, {rover, grid}}
+      {:ok, new_rover} -> {:reply, {:ok, new_rover}, {new_rover, grid}}
     end
   end
 
-  def child_spec(_) do
-    %{id: __MODULE__, start: {__MODULE__, :start_link, [nil]}}
-  end
+  def child_spec(_), do: %{id: __MODULE__, start: {__MODULE__, :start_link, [nil]}}
 end
