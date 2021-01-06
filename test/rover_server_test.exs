@@ -18,20 +18,17 @@ defmodule Rover.Server.Test do
 
     test "Default state of rover is pointing to North direction." do
       rover = Rover.Server.get_current_state()
-      assert rover.direction == @north
-      assert rover.x == 0
-      assert rover.y == 0
+      expected_rover = %Rover{direction: @north, x: 0, y: 0}
+      assert rover == expected_rover
     end
 
     test "Persists the state of the rover after multiple move operations." do
       Rover.Server.move(@right, 15)
       Rover.Server.move(@left, 10)
       Rover.Server.move(@left, 5)
-
-      rover = Rover.Server.get_current_state()
-      assert rover.direction == @west
-      assert rover.x == 10
-      assert rover.y == 10
+      expected_rover = %Rover{direction: @west, x: 10, y: 10}
+      new_rover = Rover.Server.get_current_state()
+      assert expected_rover == new_rover
     end
 
     test "Returns an error if a rover is moved with invalid arguments." do
@@ -43,10 +40,7 @@ defmodule Rover.Server.Test do
       rover = Rover.Server.get_current_state()
       Rover.Server.move("W", -22)
       new_rover = Rover.Server.get_current_state()
-
-      assert rover.direction == new_rover.direction
-      assert rover.x == new_rover.x
-      assert rover.y == new_rover.y
+      assert new_rover == rover
     end
   end
 
@@ -66,10 +60,8 @@ defmodule Rover.Server.Test do
       Rover.Server.move(@right, 4)
       Rover.Server.move(@left, 3)
       new_rover = Rover.Server.get_current_state()
-
-      assert new_rover.direction == @north
-      assert new_rover.x == 4
-      assert new_rover.y == 3
+      expected_rover = %Rover{direction: @north, x: 4, y: 3}
+      assert new_rover == expected_rover
     end
 
     test "Trying to move a rover out of bounds is unsuccessfull." do
@@ -81,9 +73,7 @@ defmodule Rover.Server.Test do
       rover = Rover.Server.get_current_state()
       Rover.Server.move(@right, 5)
       new_rover = Rover.Server.get_current_state()
-      assert rover.direction == new_rover.direction
-      assert rover.x == new_rover.x
-      assert rover.y == new_rover.y
+      assert rover == new_rover
     end
   end
 end

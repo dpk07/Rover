@@ -16,80 +16,70 @@ defmodule RoverTest do
 
   test "Creating a rover" do
     rover = Rover.init()
-    assert rover.direction == @north
-    assert rover.x == 0
-    assert rover.y == 0
+    expected_rover = %Rover{direction: @north, x: 0, y: 0}
+    assert rover == expected_rover
   end
 
   test "Moving a North-facing rover to the left.", %{grid: grid} do
-    {:ok, rover} =
+    {:ok, new_rover} =
       Rover.init(%Rover{direction: @north, x: 5, y: 4})
       |> Rover.move(@left, 2, grid)
 
-    assert rover.direction == @west
-    assert rover.x == 3
-    assert rover.y == 4
+    expected_rover = %Rover{direction: @west, x: 3, y: 4}
+    assert new_rover == expected_rover
   end
 
   test "Moving a South-facing rover to the left.", %{grid: grid} do
-    {:ok, rover} =
+    {:ok, new_rover} =
       Rover.init(%Rover{direction: @south, x: 3, y: 7})
       |> Rover.move(@left, 10, grid)
 
-    assert rover.direction == @east
-    assert rover.x == 13
-    assert rover.y == 7
+    expected_rover = %Rover{direction: @east, x: 13, y: 7}
+    assert new_rover == expected_rover
   end
 
   test "Moving an East-facing rover to the left.", %{grid: grid} do
-    {:ok, rover} =
+    {:ok, new_rover} =
       Rover.init(%Rover{direction: @east, x: 10, y: 20})
       |> Rover.move(@left, 100, grid)
 
-    assert rover.direction == @north
-    assert rover.x == 10
-    assert rover.y == 120
+    expected_rover = %Rover{direction: @north, x: 10, y: 120}
+    assert new_rover == expected_rover
   end
 
   test "Moving a West-facing rover to the left.", %{grid: grid} do
-    {:ok, rover} = Rover.init(%Rover{direction: @west, x: 0, y: 2}) |> Rover.move(@left, 2, grid)
-    assert rover.direction == @south
-    assert rover.x == 0
-    assert rover.y == 0
+    {:ok, new_rover} = Rover.init(%Rover{direction: @west, x: 0, y: 2}) |> Rover.move(@left, 2, grid)
+
+    expected_rover = %Rover{direction: @south, x: 0, y: 0}
+    assert new_rover == expected_rover
   end
 
   test "Moving a North-facing rover to the right.", %{grid: grid} do
-    {:ok, rover} =
-      Rover.init(%Rover{direction: @north, x: 205, y: 400}) |> Rover.move(@right, 129, grid)
+    {:ok, new_rover} = Rover.init(%Rover{direction: @north, x: 205, y: 400}) |> Rover.move(@right, 129, grid)
 
-    assert rover.direction == @east
-    assert rover.x == 334
-    assert rover.y == 400
+    expected_rover = %Rover{direction: @east, x: 334, y: 400}
+    assert new_rover == expected_rover
   end
 
   test "Moving a South-facing rover to the right.", %{grid: grid} do
-    {:ok, rover} =
-      Rover.init(%Rover{direction: @south, x: 1002, y: 729}) |> Rover.move(@right, 200, grid)
+    {:ok, new_rover} = Rover.init(%Rover{direction: @south, x: 1002, y: 729}) |> Rover.move(@right, 200, grid)
 
-    assert rover.direction == @west
-    assert rover.x == 802
-    assert rover.y == 729
+    expected_rover = %Rover{direction: @west, x: 802, y: 729}
+    assert new_rover == expected_rover
   end
 
   test "Moving an East-facing rover to the right.", %{grid: grid} do
-    {:ok, rover} = Rover.init(%Rover{direction: @east, x: 5, y: 5}) |> Rover.move(@right, 4, grid)
-    assert rover.direction == @south
-    assert rover.x == 5
-    assert rover.y == 1
+    {:ok, new_rover} = Rover.init(%Rover{direction: @east, x: 5, y: 5}) |> Rover.move(@right, 4, grid)
+
+    expected_rover = %Rover{direction: @south, x: 5, y: 1}
+    assert new_rover == expected_rover
   end
 
   test "Moving a West-facing rover to the right.", %{grid: grid} do
-    {:ok, rover} =
-      Rover.init(%Rover{direction: @west, x: 100, y: 247}) |> Rover.move(@right, 22, grid)
+    {:ok, new_rover} = Rover.init(%Rover{direction: @west, x: 100, y: 247}) |> Rover.move(@right, 22, grid)
 
-    assert rover.direction == @north
-    assert rover.x == 100
-    assert rover.y == 269
+    expected_rover = %Rover{direction: @north, x: 100, y: 269}
+    assert new_rover == expected_rover
   end
 
   test "Moving a rover in an invalid direction returns error.", %{grid: grid} do
