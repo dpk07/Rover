@@ -11,7 +11,7 @@ defmodule Rover.Server.Test do
 
   describe "Rover without bounds" do
     setup %{} do
-      {:ok, pid} = Rover.Server.start_link(nil)
+      {:ok, pid} = Rover.Server.start_link({1000, 1000})
       on_exit(fn -> Process.exit(pid, :kill) end)
       %{}
     end
@@ -24,14 +24,14 @@ defmodule Rover.Server.Test do
     end
 
     test "Persists the state of the rover after multiple move operations." do
-      Rover.Server.move(@left, 5)
       Rover.Server.move(@right, 15)
-      Rover.Server.move(@right, 10)
+      Rover.Server.move(@left, 10)
+      Rover.Server.move(@left, 5)
 
       rover = Rover.Server.get_current_state()
-      assert rover.direction == @east
-      assert rover.x == 5
-      assert rover.y == 15
+      assert rover.direction == @west
+      assert rover.x == 10
+      assert rover.y == 10
     end
 
     test "Returns an error if a rover is moved with invalid arguments." do
@@ -59,11 +59,7 @@ defmodule Rover.Server.Test do
 
     test "Moving a rover within bounds is successfull." do
       move_response = Rover.Server.move(@right, 4)
-
-      case move_response do
-        {:ok, _} -> assert true
-        _ -> assert false
-      end
+      assert move_response == {:ok, %Rover{x: 4, y: 0, direction: @east}}
     end
 
     test "Moving a rover within bounds persists state." do
@@ -78,16 +74,12 @@ defmodule Rover.Server.Test do
 
     test "Trying to move a rover out of bounds is unsuccessfull." do
       move_response = Rover.Server.move(@left, 10)
-
-      case move_response do
-        {:error, _, _} -> assert true
-        _ -> assert false
-      end
+      assert move_response == {:error, :invalid_operation, :rover_position_out_of_bounds}
     end
 
     test "Trying to move a rover out of bounds does not corrupt state." do
       rover = Rover.Server.get_current_state()
-      move_response = Rover.Server.move(@right, 5)
+      Rover.Server.move(@right, 5)
       new_rover = Rover.Server.get_current_state()
       assert rover.direction == new_rover.direction
       assert rover.x == new_rover.x

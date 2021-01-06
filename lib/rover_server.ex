@@ -4,17 +4,17 @@ defmodule Rover.Server do
   @doc """
   Starts a Rover Server, locally registered as module name.
   ## Examples
-      Rover.Server.start_link(nil)
+      Rover.Server.start_link({1000,1000})
       {:ok, _pid}
   """
-  def start_link(arg) do
-    GenServer.start_link(__MODULE__, arg, name: __MODULE__)
+  def start_link(grid_size_tuple) do
+    GenServer.start_link(__MODULE__, grid_size_tuple, name: __MODULE__)
   end
 
   @doc """
   Moves the rover in the provided direction for provided steps.
   ## Examples
-       Rover.Server.start_link(nil)
+       Rover.Server.start_link({1000,1000})
        Rover.Server.move("L",0)
        Rover.Server.move("R",1)
       {:ok, %Rover{direction: "N", x: 0, y: 1}}
@@ -37,7 +37,6 @@ defmodule Rover.Server do
   @impl true
   def init(arg) do
     case arg do
-      nil -> {:ok, {Rover.init(), Grid.init()}}
       {x, y} when x > 0 and y > 0 -> {:ok, {Rover.init(), Grid.init(x, y)}}
       _ -> {:stop, "Invalid arguments, grid bounds should be greater than zero."}
     end
@@ -50,25 +49,14 @@ defmodule Rover.Server do
 
   @impl true
   def handle_call({:move, direction, steps}, _, {rover, grid}) do
-    move_response = Rover.move(rover, direction, steps)
+    move_response = Rover.move(rover, direction, steps, grid)
 
     case move_response do
       {:error, _, _} = error ->
         {:reply, error, {rover, grid}}
 
       {:ok, new_rover} ->
-        case validate_rover_position(new_rover, grid) do
-          {:ok, new_rover} -> {:reply, {:ok, new_rover}, {new_rover, grid}}
-          err -> {:reply, err, {rover, grid}}
-        end
-    end
-  end
-
-  defp validate_rover_position(%Rover{x: x, y: y, direction: _} = rover, grid) do
-    unless Grid.is_position_inside_bounds?(grid, x, y) do
-      {:error, :invalid_operation, :rover_position_out_of_bounds}
-    else
-      {:ok, rover}
+        {:reply, {:ok, new_rover}, {new_rover, grid}}
     end
   end
 

@@ -30,21 +30,20 @@ defmodule Rover do
   @doc """
   Moves the rover in the provided direction for provided steps.
   ## Examples
-      iex> Rover.init(%Rover{direction: "W"}) |> Rover.move("R",1)
+      iex> Rover.init(%Rover{direction: "W"}) |> Rover.move("R",1,%Grid{x: 2,y: 2})
       {:ok, %Rover{direction: "N", x: 0, y: 1}}
 
   """
-  def move(rover, direction, steps) do
+  def move(rover, direction, steps, grid) do
     with :ok <- validate_steps(steps),
-         :ok <- validate_direction(direction) do
-      {:ok, do_move(rover, direction, steps)}
+         :ok <- validate_direction(direction),
+         {new_direction, new_x, new_y} <- get_next_position(rover, direction, steps),
+         :ok <-
+           validate_next_position(grid, new_x, new_y) do
+      {:ok, do_move(rover, new_direction, new_x, new_y)}
     else
       err -> err
     end
-  end
-
-  defp invalid_input_error(attribute) do
-    {:error, :invalid_input, attribute}
   end
 
   defp validate_steps(steps) do
@@ -63,39 +62,51 @@ defmodule Rover do
     end
   end
 
-  defp do_move(rover = %Rover{direction: @west, x: x, y: y}, @left, steps) do
-    update(rover, @south, x, y - steps)
+  defp validate_next_position(grid, new_x, new_y) do
+    if(Grid.is_position_inside_bounds?(grid, new_x, new_y)) do
+      :ok
+    else
+      {:error, :invalid_operation, :rover_position_out_of_bounds}
+    end
   end
 
-  defp do_move(rover = %Rover{direction: @east, x: x, y: y}, @left, steps) do
-    update(rover, @north, x, y + steps)
+  defp get_next_position(%Rover{direction: @west, x: x, y: y}, @left, steps) do
+    {@south, x, y - steps}
   end
 
-  defp do_move(rover = %Rover{direction: @north, x: x, y: y}, @left, steps) do
-    update(rover, @west, x - steps, y)
+  defp get_next_position(%Rover{direction: @east, x: x, y: y}, @left, steps) do
+    {@north, x, y + steps}
   end
 
-  defp do_move(rover = %Rover{direction: @south, x: x, y: y}, @left, steps) do
-    update(rover, @east, x + steps, y)
+  defp get_next_position(%Rover{direction: @north, x: x, y: y}, @left, steps) do
+    {@west, x - steps, y}
   end
 
-  defp do_move(rover = %Rover{direction: @west, x: x, y: y}, @right, steps) do
-    update(rover, @north, x, y + steps)
+  defp get_next_position(%Rover{direction: @south, x: x, y: y}, @left, steps) do
+    {@east, x + steps, y}
   end
 
-  defp do_move(rover = %Rover{direction: @east, x: x, y: y}, @right, steps) do
-    update(rover, @south, x, y - steps)
+  defp get_next_position(%Rover{direction: @west, x: x, y: y}, @right, steps) do
+    {@north, x, y + steps}
   end
 
-  defp do_move(rover = %Rover{direction: @north, x: x, y: y}, @right, steps) do
-    update(rover, @east, x + steps, y)
+  defp get_next_position(%Rover{direction: @east, x: x, y: y}, @right, steps) do
+    {@south, x, y - steps}
   end
 
-  defp do_move(rover = %Rover{direction: @south, x: x, y: y}, @right, steps) do
-    update(rover, @west, x - steps, y)
+  defp get_next_position(%Rover{direction: @north, x: x, y: y}, @right, steps) do
+    {@east, x + steps, y}
   end
 
-  defp update(rover, direction, x, y) do
+  defp get_next_position(%Rover{direction: @south, x: x, y: y}, @right, steps) do
+    {@west, x - steps, y}
+  end
+
+  defp do_move(rover, direction, x, y) do
     %Rover{rover | direction: direction, x: x, y: y}
+  end
+
+  defp invalid_input_error(attribute) do
+    {:error, :invalid_input, attribute}
   end
 end

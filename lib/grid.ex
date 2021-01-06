@@ -30,15 +30,15 @@ defmodule Grid do
     %Grid{}
   end
 
-  def is_position_inside_bounds?(%Grid{x: grid_x, y: grid_y}, x, y) do
-    if(is_grid_unbounded(grid_x, grid_y)) do
+  def is_position_inside_bounds?(grid, x, y) do
+    if(is_grid_unbounded?(grid)) do
       true
     else
-      x >= 0 && y >= 0 && x < grid_x && y < grid_y
+      x >= 0 && y >= 0 && x < grid.x && y < grid.y
     end
   end
 
-  defp is_grid_unbounded(grid_x, grid_y) do
-    grid_x == nil && grid_y == nil
+  defp is_grid_unbounded?(grid) do
+    grid.x == nil && grid.y == nil
   end
 end
